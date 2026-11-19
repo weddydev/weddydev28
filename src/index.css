@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   MAISON — white marble & liquid gold. Tailwind v4 tokens → utilities like
+   bg-porcelain, text-ink, text-gold, font-display, font-caps, ease-silk.
+   Colours are re-set at runtime from config.theme.
+   ========================================================================== */
+@theme {
+  --color-porcelain: #fbf8f2;
+  --color-pearl: #f3ede1;
+  --color-champagne: #ece2cf;
+  --color-ink: #2a2118;
+  --color-gold: #b8893a;
+  --color-gold-light: #e8cd8c;
+  --color-gold-deep: #8c6a2a;
+
+  --font-display: "Italiana", "Didot", Georgia, serif;
+  --font-caps: "Cinzel", "Trajan Pro", Georgia, serif;
+  --font-serif: "EB Garamond", Garamond, Georgia, serif;
+  --font-script: "Pinyon Script", "Snell Roundhand", cursive;
+
+  --breakpoint-desk: 900px;
+  --spacing-gutter: clamp(22px, 6vw, 80px);
+
+  --ease-silk: cubic-bezier(.22, 1, .36, 1);
+  --ease-silk-io: cubic-bezier(.65, 0, .35, 1);
+
+  /* Liquid gold, tuned to stay legible on white */
+  --gold-grad: linear-gradient(100deg, #7a5a1f 0%, #b8893a 14%, #e9cf8a 26%, #fff3d0 32%, #d4ad5c 42%, #8c6a2a 56%, #c9a24f 70%, #f6e3a8 80%, #a67c2e 92%, #7a5a1f 100%);
+  /* deeper ramp for TEXT on white (no near-white stops, so letters never vanish) */
+  --gold-ink: linear-gradient(100deg, #6f5320 0%, #a67c2e 18%, #d1a95a 32%, #8c6a2a 48%, #b8893a 64%, #dcb766 78%, #8c6a2a 100%);
+  --foil-grad: linear-gradient(120deg, #a77b2c, #e2c27a 18%, #fff1c9 30%, #c99a45 44%, #f3dc9c 58%, #b08132 74%, #edd08f 88%, #9c712a);
+}
+
+@keyframes shimmer { from { background-position: 0% 0; } to { background-position: -260% 0; } }
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes pulse-ring { 0% { transform: scale(.85); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes swipe-hint { 0% { transform: translate(-60px, 10px) rotate(-8deg); opacity: 0; } 15% { opacity: 1; } 50% { transform: translate(60px, -10px) rotate(8deg); } 85% { opacity: 1; } 100% { transform: translate(-60px, 10px) rotate(-8deg); opacity: 0; } }
+@keyframes eq { from { height: 3px; } to { height: 16px; } }
+@keyframes sheen { from { transform: translateX(-120%) skewX(-18deg); } to { transform: translateX(220%) skewX(-18deg); } }
+
+/* ---------- custom utilities ---------- */
+@utility gold-text {
+  background: var(--gold-ink);
+  background-size: 260% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: shimmer 10s linear infinite;
+  padding: 0 .08em; margin: 0 -.08em;
+}
+@utility gold-fill { background: var(--gold-grad); background-size: 220% 100%; animation: shimmer 8s linear infinite; }
+@utility caps { font-family: var(--font-caps); font-weight: 500; font-size: 10px; letter-spacing: .38em; text-transform: uppercase; line-height: 1.7; @media (width >= 900px) { font-size: 11px; } }
+@utility text-outline-gold { -webkit-text-stroke: 1px var(--color-gold); -webkit-text-fill-color: transparent; }
+@utility h-screen-s { height: 100vh; height: 100svh; }
+@utility min-h-screen-s { min-height: 100vh; min-height: 100svh; }
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    background: var(--color-porcelain); color: var(--color-ink);
+    font-family: var(--font-serif); font-size: clamp(17px, 4.3vw, 20px); line-height: 1.6;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden; -webkit-tap-highlight-color: transparent;
+  }
+  ::selection { background: var(--color-gold-light); color: var(--color-ink); }
+  :focus-visible { outline: 1px solid var(--color-gold); outline-offset: 4px; }
+  button { cursor: pointer; }
+  em { font-style: italic; }
+  html.is-locked, html.is-locked body { overflow: hidden; height: 100%; }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-stopped { overflow: hidden; }
+}
+
+@layer components {
+  /* ---------- Marble ground (texture generated at runtime → --marble) ---------- */
+  .marble { position: fixed; inset: 0; z-index: -1; pointer-events: none; background-color: var(--color-porcelain); background-image: var(--marble, none); background-size: 1400px; background-position: center top; }
+  .paper-grain { position: fixed; inset: 0; z-index: 9000; pointer-events: none; opacity: .05; mix-blend-mode: multiply; background-image: var(--noise, none); background-size: 160px; }
+
+  /* ---------- Gilded hairlines & frames ---------- */
+  .gild-rule { height: 1px; background: linear-gradient(90deg, transparent, var(--color-gold) 20%, var(--color-gold-light) 50%, var(--color-gold) 80%, transparent); }
+  .gild-frame { position: relative; }
+  .gild-frame::before { content: ""; position: absolute; inset: 0; padding: 1px; border-radius: inherit; background: var(--gold-grad); background-size: 220% 100%; animation: shimmer 9s linear infinite; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+  .arch { border-radius: 999px 999px 0 0; }
+
+  /* ---------- Buttons ---------- */
+  .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 30px; border-radius: 999px; overflow: hidden; isolation: isolate; font-family: var(--font-caps); font-weight: 600; font-size: 10px; letter-spacing: .32em; text-transform: uppercase; transition: transform .9s var(--ease-silk), color .6s var(--ease-silk), box-shadow .9s var(--ease-silk); touch-action: manipulation; }
+  .btn > span { position: relative; z-index: 2; pointer-events: none; }
+  .btn:active { transform: scale(.965); }
+  .btn-gold { color: #fff; background: var(--gold-grad); background-size: 220% 100%; animation: shimmer 7s linear infinite; text-shadow: 0 1px 1px rgba(90,60,10,.45); box-shadow: 0 14px 34px -14px rgba(140,106,42,.7), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(90,60,10,.25); }
+  .btn-gold::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; z-index: 1; background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); transform: translateX(-120%) skewX(-18deg); }
+  .btn-gold:hover::after { animation: sheen 1.3s var(--ease-silk); }
+  .btn-line { color: var(--color-gold-deep); border: 1px solid color-mix(in srgb, var(--color-gold) 55%, transparent); background: rgba(255,255,255,.4); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .btn-line::before { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; background: var(--gold-grad); background-size: 220% 100%; transform: scaleX(0); transform-origin: left; transition: transform .9s var(--ease-silk); }
+  .btn-line:hover { color: #fff; }
+  .btn-line:hover::before { transform: scaleX(1); }
+  .btn-sm { min-height: 44px; padding: 0 18px; font-size: 9px; letter-spacing: .26em; }
+
+  /* ---------- Monogram lozenge ---------- */
+  .lozenge .l-frame { fill: none; stroke: url(#mg-gold); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .lozenge .l-thin { stroke-width: .6; opacity: .7; }
+  .lozenge .l-text { font-family: var(--font-display); fill: url(#mg-gold); }
+  .lozenge .l-amp { font-family: var(--font-script); fill: url(#mg-gold); }
+  .lozenge .l-dot { fill: url(#mg-gold); }
+  .lozenge.is-drawing .l-frame { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .lozenge.is-drawing .l-text, .lozenge.is-drawing .l-amp, .lozenge.is-drawing .l-dot { opacity: 0; }
+
+  /* ---------- Programme cards ---------- */
+  .card-3d { transform-style: preserve-3d; transition: transform 1.2s var(--ease-silk); }
+  .card-3d.is-flipped { transform: rotateY(180deg); }
+  .card-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 20px; overflow: hidden; }
+  .card-back { transform: rotateY(180deg); }
+  .card-paper { background: radial-gradient(120% 80% at 50% 0%, #fffdf8, #f6efe1 70%, #efe5d2); box-shadow: 0 40px 70px -35px rgba(80,55,15,.45), 0 2px 0 rgba(255,255,255,.9) inset; }
+  .card-shine { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.75) 48%, transparent 60%); background-size: 250% 100%; background-position: var(--sx, 120%) 0; mix-blend-mode: soft-light; }
+
+  /* ---------- Cursor (fine pointers) ---------- */
+  .cursor { display: none; }
+  @media (hover: hover) and (pointer: fine) {
+    html.has-cursor, html.has-cursor * { cursor: none !important; }
+    .cursor { display: block; position: fixed; left: 0; top: 0; z-index: 9600; pointer-events: none; will-change: transform; }
+    .cursor-gem { width: 12px; height: 12px; margin: -6px 0 0 -6px; transform: rotate(45deg); background: var(--gold-grad); background-size: 200% 100%; box-shadow: 0 0 0 1px rgba(255,255,255,.8), 0 4px 10px rgba(140,106,42,.4); transition: width .7s var(--ease-silk), height .7s var(--ease-silk), margin .7s var(--ease-silk), opacity .4s; }
+    .cursor.is-hover .cursor-gem { width: 34px; height: 34px; margin: -17px 0 0 -17px; opacity: .55; }
+  }
+
+  /* ---------- Opt pills (RSVP) ---------- */
+  .pill input { position: absolute; opacity: 0; pointer-events: none; }
+  .pill span { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-gold) 45%, transparent); background: rgba(255,255,255,.55); font-family: var(--font-caps); font-weight: 500; font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--color-ink); transition: all .7s var(--ease-silk); cursor: pointer; user-select: none; }
+  .pill:active span { transform: scale(.96); }
+  .pill input:checked + span { background: var(--gold-grad); background-size: 220% 100%; color: #fff; border-color: transparent; text-shadow: 0 1px 1px rgba(90,60,10,.4); box-shadow: 0 10px 24px -12px rgba(140,106,42,.7); }
+  .pill input:focus-visible + span { outline: 1px solid var(--color-gold); outline-offset: 3px; }
+
+  .field { width: 100%; background: transparent; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--color-gold) 50%, transparent); border-radius: 0; color: var(--color-ink); font-family: var(--font-display); font-size: clamp(1.6rem, 7vw, 2.4rem); padding: 6px 0 12px; outline: none; transition: border-color .8s var(--ease-silk); -webkit-appearance: none; appearance: none; }
+  .field:focus { border-color: var(--color-gold-deep); }
+  .field::placeholder { color: rgba(42,33,24,.25); }
+
+  /* light map in champagne */
+  .map-champagne { filter: grayscale(1) sepia(.35) saturate(1.4) brightness(1.04) contrast(.92); }
+
+  /* photo grading: high-key, warm, editorial */
+  .grade-light { filter: saturate(.86) sepia(.08) contrast(1.02) brightness(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .2s !important; }
+}
